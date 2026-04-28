@@ -603,6 +603,12 @@
   /* color/bg set inline per category */
 }
 
+.tile-badge-mock {
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.5);
+  color: #a78bfa;
+}
+
 /* Distance pill top-right */
 .tile-cover-dist {
   position: absolute;

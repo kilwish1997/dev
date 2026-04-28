@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './Home.css';
+import { getMockShopsWithLocation } from '../data/mockShops';
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -127,6 +128,9 @@ function ShopTile({ shop, index, catInfo, city, location, onOpen }) {
             style={{ background: `${catInfo.color}33`, borderColor: `${catInfo.color}66`, color: catInfo.color }}>
             {catInfo.label?.toUpperCase()}
           </span>
+          {shop.isMock && (
+            <span className="tile-badge tile-badge-mock">DEMO</span>
+          )}
         </div>
         <div className="tile-cover-dist">📏 {shop.distance.toFixed(1)} km</div>
       </div>
@@ -660,10 +664,42 @@ function Home() {
     }
   };
 
+  // Convert mock shop data to the same shape as OSM shops
+  const buildMockShops = useCallback((userLoc) => {
+    const radiusKm = distance / 1000;
+    const raw = getMockShopsWithLocation(userLoc.lat, userLoc.lng);
+    return raw
+      .map(shop => ({
+        id: shop.id,
+        name: shop.name,
+        address: shop.address,
+        location: { lat: shop.lat, lng: shop.lng },
+        openingHours: shop.openingHours || 'Not available',
+        phone: shop.phone || 'N/A',
+        website: shop.website || null,
+        shopType: shop.category,
+        distance: calculateDistance(userLoc, { lat: shop.lat, lng: shop.lng }),
+        isMock: true,
+        // extra fields
+        cuisine: null, brand: null, operator: null, email: null,
+        wheelchair: null, delivery: null, takeaway: null,
+        outdoor_seating: null, internet_access: null, level: null,
+      }))
+      .filter(shop => {
+        // filter by selected category
+        if (category !== 'all' && shop.shopType !== category) return false;
+        // filter by distance
+        return shop.distance <= radiusKm;
+      });
+  }, [distance, category]);
+
   const fetchNearbyShops = async () => {
     setLoading(true);
     setError('');
     
+    // Always include mock shops within the selected radius
+    const mockShops = buildMockShops(location);
+
     try {
       const radiusInMeters = distance;
       const selectedCategory = CATEGORIES.find(cat => cat.value === category);
@@ -689,7 +725,7 @@ function Home() {
       const data = await response.json();
       
       if (data.elements && data.elements.length > 0) {
-        const shopsData = data.elements
+        const osmShops = data.elements
           .filter(element => element.tags && element.tags.name)
           .map(element => {
             const shopLat = element.lat || (element.center ? element.center.lat : null);
@@ -711,6 +747,7 @@ function Home() {
               website: element.tags.website || null,
               shopType: element.tags.shop || element.tags.amenity || 'shop',
               distance: dist,
+              isMock: false,
               // Extra description fields from OSM
               cuisine:          element.tags.cuisine          || null,
               brand:            element.tags.brand            || null,
@@ -726,14 +763,21 @@ function Home() {
           })
           .filter(shop => shop !== null);
 
-        setShops(shopsData);
+        // Merge: real OSM shops first, then mock shops
+        setShops([...osmShops, ...mockShops]);
       } else {
-        setShops([]);
-        setError('No shops found in your area. Try increasing the distance.');
+        // No OSM results — show mock data so tiles are never empty
+        setShops(mockShops);
+        if (mockShops.length === 0) {
+          setError('No shops found in your area. Try increasing the distance.');
+        }
       }
     } catch (error) {
-      setError('Failed to fetch nearby shops. Please try again.');
-      setShops([]);
+      // On API failure, fall back to mock data only
+      setShops(mockShops);
+      if (mockShops.length === 0) {
+        setError('Failed to fetch nearby shops. Please try again.');
+      }
     }
     
     setLoading(false);
