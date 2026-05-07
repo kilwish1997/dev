@@ -1,32 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;600;700;900&display=swap');
 
 /* ── Dark theme (default) ── */
 :root,
 [data-theme="dark"] {
-  --cyan: #00d4ff;
-  --cyan-dim: #0099bb;
-  --cyan-glow: rgba(0, 212, 255, 0.3);
-  --cyan-glow-strong: rgba(0, 212, 255, 0.6);
+  /* Accent — cyan to purple gradient (matches "revealed." in reference) */
+  --cyan:             #2dd4bf;          /* teal-cyan */
+  --cyan-alt:         #a78bfa;          /* violet accent */
+  --accent-gradient:  linear-gradient(90deg, #2dd4bf 0%, #818cf8 50%, #a78bfa 100%);
+  --cyan-dim:         #14b8a6;
+  --cyan-glow:        rgba(45, 212, 191, 0.25);
+  --cyan-glow-strong: rgba(45, 212, 191, 0.5);
 
-  --bg:               #050a0f;
-  --dark-bg:          #050a0f;
-  --dark-card:        #0a1520;
-  --dark-card2:       #0d1e2e;
-  --dark-border:      #0f2a3d;
-  --dark-border-bright: #1a4a6b;
+  /* Backgrounds — warm near-black, no blue tint */
+  --bg:               #111111;
+  --dark-bg:          #111111;
+  --dark-card:        #1c1c1c;
+  --dark-card2:       #242424;
+  --dark-border:      rgba(255,255,255,0.07);
+  --dark-border-bright: rgba(255,255,255,0.12);
 
-  --text-primary:   #e0f7ff;
-  --text-secondary: #7ab8cc;
-  --text-muted:     #3d7a94;
+  /* Text */
+  --text-primary:   #ffffff;
+  --text-secondary: rgba(255,255,255,0.55);
+  --text-muted:     rgba(255,255,255,0.28);
 
-  --nav-bg:         rgba(5, 10, 15, 0.95);
-  --nav-border:     var(--dark-border-bright);
+  /* Nav */
+  --nav-bg:         rgba(17, 17, 17, 0.92);
+  --nav-border:     rgba(255,255,255,0.07);
 
-  --body-gradient-1: rgba(0, 80, 120, 0.08);
-  --body-gradient-2: rgba(0, 150, 200, 0.06);
+  /* Subtle background gradients — very faint */
+  --body-gradient-1: rgba(45, 212, 191, 0.03);
+  --body-gradient-2: rgba(167, 139, 250, 0.03);
 
-  --scrollbar-track: #050a0f;
-  --scrollbar-thumb: #0099bb;
+  --scrollbar-track: #111111;
+  --scrollbar-thumb: #333333;
 }
 
 /* ── Light theme ── */
@@ -65,14 +72,11 @@
 }
 
 body {
-  font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--bg);
   color: var(--text-primary);
-  background-image:
-    radial-gradient(ellipse at 20% 50%, var(--body-gradient-1) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 20%, var(--body-gradient-2) 0%, transparent 50%);
   min-height: 100vh;
   transition: background 0.3s ease, color 0.3s ease;
 }
@@ -146,14 +150,16 @@ button:active {
 }
 
 [data-theme="light"] .nav-link {
-  color: #2c5f7a;
+  color: rgba(0,0,0,0.5);
 }
 
-[data-theme="light"] .nav-link:hover,
+[data-theme="light"] .nav-link:hover {
+  color: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.04);
+}
+
 [data-theme="light"] .nav-link.active {
   color: #0070a8;
-  background: rgba(0, 112, 168, 0.08);
-  border-color: #a8c8de;
 }
 
 [data-theme="light"] .mobile-link {

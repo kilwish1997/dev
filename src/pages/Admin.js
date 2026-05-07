@@ -14,15 +14,10 @@ const INITIAL_SUBMISSIONS = [
     description: 'New supermarket opened on Main Street. Has fresh produce, bakery, and deli sections.',
     date: '2026-04-20',
     status: 'pending',
-    // Individual fields
+    enabled: true,
     submitterType: 'individual',
-    firstName: 'John',
-    lastName: 'Doe',
-    // Org fields
-    orgName: '',
-    orgReg: '',
-    contactPerson: '',
-    website: '',
+    firstName: 'John', lastName: 'Doe',
+    orgName: '', orgReg: '', contactPerson: '', website: '',
   },
   {
     id: 2,
@@ -35,13 +30,10 @@ const INITIAL_SUBMISSIONS = [
     description: 'Opening hours listed as 9am–5pm but the shop actually closes at 8pm on weekdays.',
     date: '2026-04-19',
     status: 'pending',
+    enabled: true,
     submitterType: 'individual',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    orgName: '',
-    orgReg: '',
-    contactPerson: '',
-    website: '',
+    firstName: 'Jane', lastName: 'Smith',
+    orgName: '', orgReg: '', contactPerson: '', website: '',
   },
   {
     id: 3,
@@ -54,13 +46,11 @@ const INITIAL_SUBMISSIONS = [
     description: 'The shop has moved to the new shopping centre on Park Avenue, 2nd floor.',
     date: '2026-04-18',
     status: 'approved',
+    enabled: true,
     submitterType: 'organization',
-    firstName: '',
-    lastName: '',
-    orgName: 'Fashion Hub Ltd.',
-    orgReg: 'REG-2019-00341',
-    contactPerson: 'Mike Johnson',
-    website: 'https://fashionhub.com',
+    firstName: '', lastName: '',
+    orgName: 'Fashion Hub Ltd.', orgReg: 'REG-2019-00341',
+    contactPerson: 'Mike Johnson', website: 'https://fashionhub.com',
   },
   {
     id: 4,
@@ -73,13 +63,10 @@ const INITIAL_SUBMISSIONS = [
     description: 'This shop has been permanently closed for over 6 months. Should be removed from listings.',
     date: '2026-04-17',
     status: 'declined',
+    enabled: false,
     submitterType: 'individual',
-    firstName: 'Sarah',
-    lastName: 'Williams',
-    orgName: '',
-    orgReg: '',
-    contactPerson: '',
-    website: '',
+    firstName: 'Sarah', lastName: 'Williams',
+    orgName: '', orgReg: '', contactPerson: '', website: '',
   },
   {
     id: 5,
@@ -92,13 +79,11 @@ const INITIAL_SUBMISSIONS = [
     description: 'Specialty coffee shop with co-working space. Open 7am–10pm daily.',
     date: '2026-04-16',
     status: 'pending',
+    enabled: true,
     submitterType: 'organization',
-    firstName: '',
-    lastName: '',
-    orgName: 'Brew & Bean Co.',
-    orgReg: 'REG-2023-00887',
-    contactPerson: 'Carlos Rivera',
-    website: 'https://brewandbean.com',
+    firstName: '', lastName: '',
+    orgName: 'Brew & Bean Co.', orgReg: 'REG-2023-00887',
+    contactPerson: 'Carlos Rivera', website: 'https://brewandbean.com',
   },
   {
     id: 6,
@@ -111,13 +96,10 @@ const INITIAL_SUBMISSIONS = [
     description: 'Phone number on the listing is incorrect. The correct number is +1-800-555-0199.',
     date: '2026-04-15',
     status: 'approved',
+    enabled: true,
     submitterType: 'individual',
-    firstName: 'Priya',
-    lastName: 'Patel',
-    orgName: '',
-    orgReg: '',
-    contactPerson: '',
-    website: '',
+    firstName: 'Priya', lastName: 'Patel',
+    orgName: '', orgReg: '', contactPerson: '', website: '',
   },
 ];
 
@@ -134,6 +116,196 @@ const TYPE_ICONS = {
   'Update Location': '📍',
   'Remove Shop': '🗑️',
 };
+
+// ── Priority tiers ─────────────────────────────────────────────────────────
+const PRIORITY_TIERS = [
+  { level: 3, label: 'Platinum', icon: '💎', color: '#a78bfa', price: '₹2999/mo', perks: 'Top of all results · Featured badge · Highlighted card' },
+  { level: 2, label: 'Gold',     icon: '🥇', color: '#f59e0b', price: '₹1499/mo', perks: 'Above standard results · Gold badge' },
+  { level: 1, label: 'Silver',   icon: '🥈', color: '#94a3b8', price: '₹699/mo',  perks: 'Slightly boosted · Silver badge' },
+  { level: 0, label: 'Standard', icon: '🏪', color: '#475569', price: 'Free',      perks: 'Default position · No badge' },
+];
+
+const INITIAL_PRIORITY_SHOPS = [
+  { id: 101, name: 'Fresh Mart Grocery', category: 'Grocery',   owner: 'John Doe',       contact: '+91 98100 00001', priority: 3, expiresOn: '2026-07-20', paid: true  },
+  { id: 102, name: 'Brew & Bean Café',   category: 'Cafes',     owner: 'Carlos Rivera',  contact: '+91 98100 00002', priority: 2, expiresOn: '2026-06-16', paid: true  },
+  { id: 103, name: 'Fashion Hub',        category: 'Fashion',   owner: 'Mike Johnson',   contact: '+91 98100 00003', priority: 1, expiresOn: '2026-05-18', paid: true  },
+  { id: 104, name: 'City Pharmacy',      category: 'Pharmacy',  owner: 'Jane Smith',     contact: '+91 98100 00004', priority: 0, expiresOn: null,         paid: false },
+];
+
+// ── Shop Priority Section ──────────────────────────────────────────────────
+function ShopPrioritySection() {
+  const [shops, setShops] = useState(INITIAL_PRIORITY_SHOPS);
+  const [addForm, setAddForm] = useState({ name: '', category: '', owner: '', contact: '', priority: 1, expiresOn: '' });
+  const [showAdd, setShowAdd] = useState(false);
+  const [editId, setEditId] = useState(null);
+
+  const tierOf = (level) => PRIORITY_TIERS.find(t => t.level === level);
+
+  const handlePriorityChange = (id, newLevel) => {
+    setShops(prev => {
+      const updated = prev.map(s => s.id === id ? { ...s, priority: Number(newLevel), paid: Number(newLevel) > 0 } : s);
+      try { localStorage.setItem('shopPriorities', JSON.stringify(updated.map(s => ({ id: s.id, name: s.name, priority: s.priority })))); } catch (e) {}
+      return updated;
+    });
+  };
+
+  const handleDelete = (id) => setShops(prev => prev.filter(s => s.id !== id));
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+    const newShop = { ...addForm, id: Date.now(), paid: addForm.priority > 0, priority: Number(addForm.priority) };
+    setShops(prev => [...prev, newShop]);
+    setAddForm({ name: '', category: '', owner: '', contact: '', priority: 1, expiresOn: '' });
+    setShowAdd(false);
+  };
+
+  // Sort by priority desc
+  const sorted = [...shops].sort((a, b) => b.priority - a.priority);
+
+  return (
+    <section className="priority-section">
+
+      {/* Header */}
+      <div className="priority-header">
+        <div>
+          <h2 className="priority-heading">
+            <span className="priority-heading-icon">⚡</span> Shop Priority & Boost
+          </h2>
+          <p className="priority-subheading">
+            Shops with higher priority appear at the top of search results. Manage paid boosts here.
+          </p>
+        </div>
+        <button className="priority-add-btn" onClick={() => setShowAdd(v => !v)}>
+          {showAdd ? '✕ Cancel' : '+ Add Shop'}
+        </button>
+      </div>
+
+      {/* Tier legend */}
+      <div className="priority-tiers">
+        {PRIORITY_TIERS.map(t => (
+          <div key={t.level} className="priority-tier-card" style={{ '--tier-color': t.color }}>
+            <span className="tier-icon">{t.icon}</span>
+            <div className="tier-info">
+              <span className="tier-label">{t.label}</span>
+              <span className="tier-price">{t.price}</span>
+            </div>
+            <span className="tier-perks">{t.perks}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Add shop form */}
+      {showAdd && (
+        <form className="priority-add-form" onSubmit={handleAdd}>
+          <h3 className="paf-title">Add Shop to Priority List</h3>
+          <div className="paf-grid">
+            <div className="paf-group">
+              <label className="paf-label">Shop Name *</label>
+              <input className="paf-input" required placeholder="e.g. City Bakery" value={addForm.name}
+                onChange={e => setAddForm(p => ({ ...p, name: e.target.value }))} />
+            </div>
+            <div className="paf-group">
+              <label className="paf-label">Category *</label>
+              <input className="paf-input" required placeholder="e.g. Bakery" value={addForm.category}
+                onChange={e => setAddForm(p => ({ ...p, category: e.target.value }))} />
+            </div>
+            <div className="paf-group">
+              <label className="paf-label">Owner Name *</label>
+              <input className="paf-input" required placeholder="Full name" value={addForm.owner}
+                onChange={e => setAddForm(p => ({ ...p, owner: e.target.value }))} />
+            </div>
+            <div className="paf-group">
+              <label className="paf-label">Contact</label>
+              <input className="paf-input" placeholder="+91 XXXXX XXXXX" value={addForm.contact}
+                onChange={e => setAddForm(p => ({ ...p, contact: e.target.value }))} />
+            </div>
+            <div className="paf-group">
+              <label className="paf-label">Priority Tier *</label>
+              <select className="paf-input" value={addForm.priority}
+                onChange={e => setAddForm(p => ({ ...p, priority: Number(e.target.value) }))}>
+                {PRIORITY_TIERS.map(t => (
+                  <option key={t.level} value={t.level}>{t.icon} {t.label} — {t.price}</option>
+                ))}
+              </select>
+            </div>
+            <div className="paf-group">
+              <label className="paf-label">Expires On</label>
+              <input className="paf-input" type="date" value={addForm.expiresOn}
+                onChange={e => setAddForm(p => ({ ...p, expiresOn: e.target.value }))} />
+            </div>
+          </div>
+          <button type="submit" className="paf-submit">Add to Priority List →</button>
+        </form>
+      )}
+
+      {/* Priority table */}
+      <div className="priority-table-wrap">
+        <table className="priority-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Shop</th>
+              <th>Owner</th>
+              <th>Contact</th>
+              <th>Tier</th>
+              <th>Expires</th>
+              <th>Change Tier</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((shop, idx) => {
+              const tier = tierOf(shop.priority);
+              return (
+                <tr key={shop.id} className={`priority-row priority-row-${shop.priority}`}>
+                  <td className="priority-rank">
+                    <span className="rank-num">#{idx + 1}</span>
+                  </td>
+                  <td className="priority-shop-cell">
+                    <span className="priority-shop-name">{shop.name}</span>
+                    <span className="priority-shop-cat">{shop.category}</span>
+                  </td>
+                  <td className="priority-owner">{shop.owner}</td>
+                  <td className="priority-contact">
+                    {shop.contact
+                      ? <a href={`tel:${shop.contact}`} className="priority-contact-link">{shop.contact}</a>
+                      : '—'}
+                  </td>
+                  <td>
+                    <span className="priority-tier-badge" style={{ '--tier-color': tier.color }}>
+                      {tier.icon} {tier.label}
+                    </span>
+                  </td>
+                  <td className="priority-expires">
+                    {shop.expiresOn
+                      ? <span className={new Date(shop.expiresOn) < new Date() ? 'expired-text' : ''}>{shop.expiresOn}</span>
+                      : <span className="no-expiry">—</span>}
+                  </td>
+                  <td>
+                    <select
+                      className="priority-select"
+                      value={shop.priority}
+                      onChange={e => handlePriorityChange(shop.id, e.target.value)}
+                      style={{ '--tier-color': tier.color }}
+                    >
+                      {PRIORITY_TIERS.map(t => (
+                        <option key={t.level} value={t.level}>{t.icon} {t.label}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    <button className="priority-delete-btn" onClick={() => handleDelete(shop.id)} title="Remove">✕</button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+  );
+}
 
 // ── Submitter detail form ──────────────────────────────────────────────────
 function SubmitterDetail({ sub, onTypeChange }) {
@@ -245,6 +417,17 @@ function Admin() {
   const handleDelete = (id) => {
     setSubmissions(prev => prev.filter(s => s.id !== id));
     if (expanded === id) setExpanded(null);
+  };
+
+  // Toggle shop enabled/disabled — persists to localStorage
+  const handleToggleEnabled = (id) => {
+    setSubmissions(prev => {
+      const updated = prev.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s);
+      // persist disabled shop IDs so Home page can read them
+      const disabledIds = updated.filter(s => !s.enabled).map(s => s.id);
+      try { localStorage.setItem('disabledShops', JSON.stringify(disabledIds)); } catch (e) {}
+      return updated;
+    });
   };
 
   // Switch submitter type for a specific card
@@ -381,27 +564,41 @@ function Admin() {
                     onKeyDown={e => e.key === 'Enter' && toggleExpand(sub.id)}
                     aria-expanded={isOpen}
                   >
-                    <div className="action-header-left">
-                      <span
-                        className="submission-type-badge"
-                        style={{
-                          background: typeStyle.bg,
-                          border: `1px solid ${typeStyle.border}`,
-                          color: typeStyle.text,
-                        }}
-                      >
-                        {TYPE_ICONS[sub.type]} {sub.type}
+                    {/* Col 1 — type dot + icon */}
+                    <span
+                      className="type-dot"
+                      style={{ background: typeStyle.border }}
+                      title={sub.type}
+                    />
+
+                    {/* Col 2 — shop name + meta */}
+                    <div className="action-main">
+                      <span className="action-shop-name">
+                        {sub.shop}
+                        {!sub.enabled && (
+                          <span className="shop-disabled-badge">disabled</span>
+                        )}
                       </span>
-                      <span className="action-shop-name">{sub.shop}</span>
-                      <span className="action-category">{sub.category}</span>
-                      {/* Submitter type pill in collapsed row */}
-                      <span className={`submitter-pill ${sub.submitterType}`}>
-                        {sub.submitterType === 'individual' ? '👤 Individual' : '🏢 Organization'}
-                      </span>
+                      <div className="action-meta-row">
+                        <span
+                          className="type-tag"
+                          style={{ color: typeStyle.text, background: typeStyle.bg, borderColor: typeStyle.border }}
+                        >
+                          {TYPE_ICONS[sub.type]} {sub.type}
+                        </span>
+                        <span className="meta-dot" />
+                        <span className="action-category">{sub.category}</span>
+                        <span className="meta-dot" />
+                        <span className={`submitter-pill ${sub.submitterType}`}>
+                          {sub.submitterType === 'individual' ? '👤 Individual' : '🏢 Org'}
+                        </span>
+                      </div>
                     </div>
+
+                    {/* Col 3 — right side */}
                     <div className="action-header-right">
                       <span className={`status-badge ${sub.status}`}>
-                        {sub.status.toUpperCase()}
+                        {sub.status === 'pending' ? '● Pending' : sub.status === 'approved' ? '✓ Approved' : '✕ Declined'}
                       </span>
                       <span className="action-date">{sub.date}</span>
                       <span className={`expand-chevron ${isOpen ? 'open' : ''}`}>›</span>
@@ -441,6 +638,31 @@ function Admin() {
                       {/* ── Individual / Organization toggle + fields ── */}
                       <SubmitterDetail sub={sub} onTypeChange={handleTypeChange} />
 
+                      {/* ── Shop visibility toggle ── */}
+                      <div className="shop-toggle-row">
+                        <div className="shop-toggle-info">
+                          <span className="shop-toggle-label">Shop Visibility</span>
+                          <span className="shop-toggle-desc">
+                            {sub.enabled
+                              ? 'Shop is visible to users on the map'
+                              : 'Shop is hidden from all users'}
+                          </span>
+                        </div>
+                        <button
+                          className={`shop-toggle-btn ${sub.enabled ? 'on' : 'off'}`}
+                          onClick={() => handleToggleEnabled(sub.id)}
+                          aria-pressed={sub.enabled}
+                          aria-label={`${sub.enabled ? 'Disable' : 'Enable'} ${sub.shop}`}
+                        >
+                          <span className="shop-toggle-track">
+                            <span className="shop-toggle-knob" />
+                          </span>
+                          <span className="shop-toggle-text">
+                            {sub.enabled ? 'Enabled' : 'Disabled'}
+                          </span>
+                        </button>
+                      </div>
+
                       {/* Action buttons */}
                       <div className="action-buttons">
                         {sub.status === 'pending' && (
@@ -475,6 +697,10 @@ function Admin() {
           </div>
         )}
       </div>
+
+      {/* ── Shop Priority & Boost ── */}
+      <ShopPrioritySection />
+
     </div>
   );
 }

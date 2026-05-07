@@ -21,12 +21,12 @@
 }
 
 .ic-header h1 {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Inter', sans-serif;
   color: var(--cyan);
   font-size: 1.9rem;
   font-weight: 700;
-  letter-spacing: 2px;
-  text-shadow: 0 0 30px var(--cyan-glow-strong), 0 0 60px rgba(0,212,255,0.2);
+  letter-spacing: -0.2px;
+  
   margin-bottom: 0.6rem;
 }
 
@@ -59,7 +59,7 @@
 }
 
 .ic-stat-num {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: var(--cyan);
@@ -67,10 +67,10 @@
 }
 
 .ic-stat-label {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: -0.2px;
   color: var(--text-muted);
 }
 
@@ -90,7 +90,7 @@
   padding: 0.6rem 1.4rem;
   border-radius: 8px;
   cursor: pointer;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
   font-size: 0.95rem;
   letter-spacing: 1px;
@@ -208,7 +208,7 @@
 }
 
 .ic-card-label {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-muted);
@@ -264,7 +264,7 @@
 
 /* ── Status Badge ── */
 .ic-badge {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 1.5px;

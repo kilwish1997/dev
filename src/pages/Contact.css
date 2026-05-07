@@ -23,12 +23,12 @@
 }
 
 .contact-title {
-  font-family: 'Orbitron', monospace;
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: var(--cyan);
-  letter-spacing: 3px;
-  text-shadow: 0 0 30px rgba(0,212,255,0.35), 0 0 60px rgba(0,212,255,0.15);
+  font-family: 'Inter', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  text-shadow: none;
   margin: 0 0 0.8rem;
 }
 
@@ -118,15 +118,15 @@
 }
 
 .channel-label {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 0.65rem;
-  letter-spacing: 2px;
+  letter-spacing: -0.2px;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
 .channel-value {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -157,9 +157,9 @@
 }
 
 .faq-title {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
-  letter-spacing: 2px;
+  letter-spacing: -0.2px;
   text-transform: uppercase;
   color: var(--text-muted);
   padding: 1.2rem 1.4rem 0.8rem;
@@ -188,7 +188,7 @@
   background: none;
   border: none;
   color: var(--text-secondary);
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
   text-align: left;
@@ -254,12 +254,12 @@
 }
 
 .form-heading {
-  font-family: 'Orbitron', monospace;
-  font-size: 1.1rem;
-  color: var(--cyan);
-  letter-spacing: 2px;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
   margin: 0 0 0.4rem;
-  text-shadow: 0 0 16px rgba(0,212,255,0.3);
 }
 
 .form-sub {
@@ -288,7 +288,7 @@
 }
 
 .cf-label {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 1.5px;
@@ -303,7 +303,7 @@
   border: 1px solid var(--dark-border-bright);
   border-radius: 10px;
   color: var(--text-primary);
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   padding: 0.65rem 0.9rem;
   outline: none;
@@ -338,7 +338,7 @@
   border: 1px solid var(--cyan);
   border-radius: 10px;
   color: var(--cyan);
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
   font-size: 1rem;
   letter-spacing: 1.5px;
@@ -389,10 +389,10 @@
 }
 
 .contact-success h3 {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Inter', sans-serif;
   color: #10b981;
   font-size: 1.1rem;
-  letter-spacing: 2px;
+  letter-spacing: -0.2px;
   margin: 0;
 }
 
@@ -411,7 +411,7 @@
   border: 1px solid #10b981;
   border-radius: 8px;
   color: #10b981;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
@@ -439,4 +439,20 @@
   .contact-title { font-size: 1.6rem; }
   .cf-row-2 { grid-template-columns: 1fr; }
   .contact-form-card { padding: 1.4rem; }
+}
+
+/* Timings card — not a link, no hover effect */
+.channel-card-static {
+  cursor: default;
+}
+
+.channel-card-static:hover {
+  transform: none;
+  border-color: var(--dark-border);
+  background: var(--dark-card);
+  box-shadow: none;
+}
+
+.channel-card-static::before {
+  opacity: 1;
 }

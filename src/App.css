@@ -1,12 +1,12 @@
 .navbar {
   background: var(--nav-bg);
-  border-bottom: 1px solid var(--nav-border);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   padding: 0;
   position: sticky;
   top: 0;
   z-index: 200;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 0 30px rgba(0, 212, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .nav-container {
@@ -16,7 +16,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 68px;
+  height: 60px;
 }
 
 /* Right side: theme toggle + hamburger */
@@ -26,84 +26,99 @@
   gap: 0.6rem;
 }
 
+/* ── Logo ── */
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.55rem;
   text-decoration: none;
 }
 
+/* hide broken img — only show when loaded */
 .nav-logo-img {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   object-fit: contain;
-  filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.6));
-  transition: filter 0.3s ease, transform 0.3s ease;
+  filter: drop-shadow(0 0 6px rgba(0,212,255,0.5));
+  transition: filter 0.3s, transform 0.3s;
+  /* hide alt text / broken icon */
+  color: transparent;
+  font-size: 0;
+}
+
+.nav-logo-img[src=""],
+.nav-logo-img:not([src]) {
+  display: none;
 }
 
 .nav-logo:hover .nav-logo-img {
-  filter: drop-shadow(0 0 14px rgba(0, 212, 255, 0.9));
-  transform: scale(1.05);
+  filter: drop-shadow(0 0 12px rgba(0,212,255,0.85));
+  transform: scale(1.06);
 }
 
 .nav-logo-text {
   font-family: 'Orbitron', monospace;
-  font-size: 1.4rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--cyan);
-  letter-spacing: 4px;
-  text-shadow: 0 0 20px var(--cyan-glow-strong);
+  letter-spacing: 5px;
+  text-shadow: 0 0 18px var(--cyan-glow-strong);
 }
 
 /* ── Desktop nav menu ── */
 .nav-menu {
   display: flex;
   list-style: none;
-  gap: 0.5rem;
+  gap: 0.2rem;
   margin: 0;
   padding: 0;
 }
 
 .nav-link {
-  color: var(--text-secondary);
+  color: rgba(255,255,255,0.55);
   text-decoration: none;
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 600;
-  font-size: 1rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 0.5rem 1.2rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 0.88rem;
+  letter-spacing: 0;
+  padding: 0.45rem 0.9rem;
   border-radius: 6px;
-  border: 1px solid transparent;
-  transition: all 0.3s ease;
+  border: none;
+  transition: color 0.2s ease, background 0.2s ease;
   position: relative;
 }
 
-.nav-link::before {
+.nav-link::after {
   content: '';
   position: absolute;
-  bottom: 0;
+  bottom: -1px;
   left: 50%;
-  transform: translateX(-50%);
-  width: 0;
+  transform: translateX(-50%) scaleX(0);
+  width: 70%;
   height: 2px;
   background: var(--cyan);
-  transition: width 0.3s ease;
-  box-shadow: 0 0 8px var(--cyan);
+  border-radius: 2px;
+  transition: transform 0.25s ease;
 }
 
-.nav-link:hover,
+.nav-link:hover {
+  color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.05);
+}
+
 .nav-link.active {
-  color: var(--cyan);
-  border-color: var(--dark-border-bright);
-  background: rgba(0, 212, 255, 0.05);
+  color: #fff;
+  font-weight: 500;
+  background: transparent;
 }
 
-.nav-link:hover::before,
-.nav-link.active::before {
-  width: 80%;
+.nav-link.active::after {
+  transform: translateX(-50%) scaleX(1);
 }
+
+/* remove old ::before */
+.nav-link::before { display: none; }
 
 /* ── Hamburger button ── */
 .hamburger {
@@ -182,11 +197,10 @@
   padding: 0.85rem 2rem;
   color: var(--text-secondary);
   text-decoration: none;
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 600;
-  font-size: 1.05rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: 0.2px;
   border-left: 3px solid transparent;
   transition: all 0.25s ease;
 }
@@ -232,7 +246,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   color: var(--text-secondary);
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 0.82rem;
   letter-spacing: 0.5px;
@@ -302,7 +316,7 @@
   border-top: 1px solid var(--dark-border);
   color: var(--text-secondary);
   text-align: left;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 1.05rem;
   letter-spacing: 1px;
@@ -399,7 +413,7 @@
   color: rgba(255,255,255,0.28);
   letter-spacing: 0.5px;
   margin: 0;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 /* ── Nav links ── */
@@ -412,11 +426,10 @@
 .footer-link {
   color: rgba(255,255,255,0.35);
   text-decoration: none;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.2px;
   padding: 0.3rem 0.75rem;
   border-radius: 6px;
   transition: color 0.25s, background 0.25s;
@@ -448,7 +461,7 @@
   gap: 0.45rem;
   font-size: 0.72rem;
   color: rgba(255,255,255,0.25);
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
   letter-spacing: 0.5px;
 }
 
@@ -471,7 +484,7 @@
 .footer-copy {
   font-size: 0.7rem;
   color: rgba(255,255,255,0.15);
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', sans-serif;
   letter-spacing: 1px;
 }
 
@@ -481,9 +494,9 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0,212,255,0.18) 30%,
-    rgba(0,212,255,0.35) 50%,
-    rgba(0,212,255,0.18) 70%,
+    rgba(45,212,191,0.15) 30%,
+    rgba(167,139,250,0.25) 50%,
+    rgba(45,212,191,0.15) 70%,
     transparent 100%
   );
 }
@@ -503,5 +516,116 @@
 
   .footer-nav {
     flex-wrap: wrap;
+  }
+}
+
+/* ════════════════════════════════════════════
+   Floating WhatsApp Button
+   ════════════════════════════════════════════ */
+
+.wa-float {
+  position: fixed;
+  bottom: 1.8rem;
+  right: 1.8rem;
+  z-index: 999;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(37,211,102,0.45), 0 2px 8px rgba(0,0,0,0.3);
+  text-decoration: none;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1),
+              box-shadow 0.25s ease;
+}
+
+.wa-float:hover {
+  transform: scale(1.12) translateY(-3px);
+  box-shadow: 0 8px 28px rgba(37,211,102,0.55), 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.wa-float:active {
+  transform: scale(0.96);
+  transition-duration: 0.08s;
+}
+
+.wa-float-icon {
+  width: 28px;
+  height: 28px;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+/* Tooltip */
+.wa-float-tooltip {
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(6px);
+  background: #1a1a1a;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.wa-float-tooltip::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-left-color: #1a1a1a;
+  border-right: none;
+}
+
+.wa-float-tooltip.visible {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Ping animation ring */
+.wa-float-ping {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(37,211,102,0.4);
+  animation: waPing 2.2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes waPing {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  70%  { transform: scale(1.7); opacity: 0; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+/* Mobile — smaller, lower position */
+@media (max-width: 600px) {
+  .wa-float {
+    width: 50px;
+    height: 50px;
+    bottom: 1.2rem;
+    right: 1.2rem;
+  }
+
+  .wa-float-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .wa-float-tooltip {
+    display: none;
   }
 }
