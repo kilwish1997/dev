@@ -127,20 +127,48 @@ All services are free and open-source! 🌍
 
 ## Troubleshooting
 
+### Production Deployment Issues (FIXED ✅)
+
+**Issue**: OpenStreetMap location search worked on localhost but failed after deployment to Vercel.
+
+**Root Causes & Solutions**:
+1. ✅ **Missing API Headers** - Added proper `User-Agent` and `Accept` headers required by OpenStreetMap
+2. ✅ **Poor Error Handling** - Enhanced error messages and HTTP status checking
+3. ✅ **No Retry Logic** - Implemented retry mechanism with exponential backoff for rate limiting
+4. ✅ **HTTPS Required** - Vercel automatically provides HTTPS for geolocation API
+
+**Files Modified**:
+- `src/utils/apiHelpers.js` - New utility module with retry logic
+- `src/pages/Home.js` - Updated to use helper functions
+- `vercel.json` - Added for proper SPA routing
+
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+### Common Issues
+
 **Location not detected:**
 - Ensure location services are enabled in your browser
 - Check that you've allowed location access when prompted
-- Try using HTTPS (required for geolocation on some browsers)
+- HTTPS is required for geolocation (automatically enabled on Vercel)
+- Check browser console for specific error messages
 
 **No shops appearing:**
 - Some areas may have limited OpenStreetMap data
 - Try increasing the distance radius
 - Different categories may have different availability
+- Check browser console for API errors
+
+**"Failed to fetch nearby shops" error:**
+- This may indicate rate limiting from OpenStreetMap APIs
+- Wait 1-2 minutes before retrying
+- The app now includes automatic retry logic
+- Check network tab in DevTools for API response details
 
 **Map not loading:**
 - Check your internet connection
 - Ensure Leaflet CSS is loading properly
 - Clear browser cache and reload
+- Verify HTTPS is enabled
 
 ## Technologies Used
 

@@ -3,6 +3,12 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './Home.css';
+import { 
+  getCityFromCoordinates, 
+  fetchNearbyShopsFromOSM, 
+  calculateDistance,
+  parseShopFromOSMElement 
+} from '../utils/apiHelpers';
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -626,38 +632,53 @@ function Home() {
   }, [shops, distance, searchQuery]);
 
   const getUserLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          setLocation(userLocation);
-          getCityName(userLocation);
-        },
-        (error) => {
-          setError('Unable to retrieve your location. Please enable location services.');
-          setLoading(false);
-        }
-      );
-    } else {
+    if (!navigator.geolocation) {
       setError('Geolocation is not supported by your browser.');
       setLoading(false);
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        setLocation(userLocation);
+        getCityName(userLocation);
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        let errorMessage = 'Unable to retrieve your location. ';
+        
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += 'Please enable location permissions in your browser settings.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += 'Location information is unavailable.';
+            break;
+          case error.TIMEOUT:
+            errorMessage += 'Location request timed out.';
+            break;
+          default:
+            errorMessage += 'An unknown error occurred.';
+        }
+        
+        setError(errorMessage);
+        setLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
   };
 
   const getCityName = async (location) => {
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.lat}&lon=${location.lng}`
-      );
-      const data = await response.json();
-      const cityName = data.address.city || data.address.town || data.address.village || 'your area';
-      setCity(cityName);
-    } catch (error) {
-      setCity('your area');
-    }
+    const cityName = await getCityFromCoordinates(location.lat, location.lng);
+    setCity(cityName);
   };
 
   const fetchNearbyShops = async () => {
@@ -669,61 +690,16 @@ function Home() {
       const selectedCategory = CATEGORIES.find(cat => cat.value === category);
       const osmTag = selectedCategory ? selectedCategory.osmTag : 'shop';
       
-      // Build Overpass query for OpenStreetMap data
-      const query = `
-        [out:json][timeout:25];
-        (
-          node["${osmTag.split('=')[0]}"](around:${radiusInMeters},${location.lat},${location.lng});
-          way["${osmTag.split('=')[0]}"](around:${radiusInMeters},${location.lat},${location.lng});
-        );
-        out body;
-        >;
-        out skel qt;
-      `;
-
-      const response = await fetch('https://overpass-api.de/api/interpreter', {
-        method: 'POST',
-        body: query
-      });
-
-      const data = await response.json();
+      const data = await fetchNearbyShopsFromOSM(
+        location.lat, 
+        location.lng, 
+        radiusInMeters, 
+        osmTag
+      );
       
       if (data.elements && data.elements.length > 0) {
         const shopsData = data.elements
-          .filter(element => element.tags && element.tags.name)
-          .map(element => {
-            const shopLat = element.lat || (element.center ? element.center.lat : null);
-            const shopLng = element.lon || (element.center ? element.center.lon : null);
-            
-            if (!shopLat || !shopLng) return null;
-
-            const dist = calculateDistance(location, { lat: shopLat, lng: shopLng });
-            
-            return {
-              id: element.id,
-              name: element.tags.name,
-              address: element.tags['addr:street'] 
-                ? `${element.tags['addr:street']}${element.tags['addr:housenumber'] ? ' ' + element.tags['addr:housenumber'] : ''}`
-                : 'Address not available',
-              location: { lat: shopLat, lng: shopLng },
-              openingHours: element.tags.opening_hours || 'Not available',
-              phone: element.tags.phone || 'N/A',
-              website: element.tags.website || null,
-              shopType: element.tags.shop || element.tags.amenity || 'shop',
-              distance: dist,
-              // Extra description fields from OSM
-              cuisine:          element.tags.cuisine          || null,
-              brand:            element.tags.brand            || null,
-              operator:         element.tags.operator         || null,
-              email:            element.tags.email            || null,
-              wheelchair:       element.tags.wheelchair       || null,
-              delivery:         element.tags.delivery         || null,
-              takeaway:         element.tags.takeaway         || null,
-              outdoor_seating:  element.tags.outdoor_seating  || null,
-              internet_access:  element.tags.internet_access  || null,
-              level:            element.tags.level            || null,
-            };
-          })
+          .map(element => parseShopFromOSMElement(element, location))
           .filter(shop => shop !== null);
 
         setShops(shopsData);
@@ -732,7 +708,8 @@ function Home() {
         setError('No shops found in your area. Try increasing the distance.');
       }
     } catch (error) {
-      setError('Failed to fetch nearby shops. Please try again.');
+      console.error('Error fetching nearby shops:', error);
+      setError(`Failed to fetch nearby shops: ${error.message}. Please try again.`);
       setShops([]);
     }
     
@@ -751,18 +728,7 @@ function Home() {
       );
     }
     setFilteredShops(filtered);
-  };
-
-  const calculateDistance = (loc1, loc2) => {
-    const R = 6371; // Earth's radius in km
-    const dLat = (loc2.lat - loc1.lat) * Math.PI / 180;
-    const dLon = (loc2.lng - loc1.lng) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(loc1.lat * Math.PI / 180) * Math.cos(loc2.lat * Math.PI / 180) *
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
+  };eredShops(filtered);
   };
 
   const handleAddressClick = (shop) => {
