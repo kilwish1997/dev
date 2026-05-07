@@ -317,7 +317,6 @@ function AdminDashboard2() {
   }
 
   const { overview, ratingSystem, shopTypes, yearOverYear, growth, geographic, searchAnalytics } = data;
-  const totalEntities = Object.values(overview.entities).reduce((a, b) => a + b, 0);
   const totalRatingDist = ratingSystem.distribution.reduce((a, b) => a + b.count, 0);
 
   // Enhanced gradient colors for charts

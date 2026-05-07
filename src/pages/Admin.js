@@ -137,7 +137,6 @@ function ShopPrioritySection() {
   const [shops, setShops] = useState(INITIAL_PRIORITY_SHOPS);
   const [addForm, setAddForm] = useState({ name: '', category: '', owner: '', contact: '', priority: 1, expiresOn: '' });
   const [showAdd, setShowAdd] = useState(false);
-  const [editId, setEditId] = useState(null);
 
   const tierOf = (level) => PRIORITY_TIERS.find(t => t.level === level);
 
